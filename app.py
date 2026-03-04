@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import os
 
@@ -15,9 +15,7 @@ def index():
 @socketio.on('identify')
 def handle_identify(role):
     print(f"Identified as {role}")
-    # In a real app, you'd track sessions better
     if role == 'host':
-        # Notify clients that host is online
         emit('host_status', True, broadcast=True)
 
 @socketio.on('screen_frame')
@@ -33,9 +31,8 @@ def handle_control_event(data):
 @socketio.on('disconnect')
 def handle_disconnect():
     # If the host disconnects, notify clients
-    # Note: This is a simplification
     emit('host_status', False, broadcast=True)
 
 if __name__ == '__main__':
-    # Use 'eventlet' or 'gevent' for production-like behavior locally
-    socketio.run(app, debug=True, port=3000)
+    port = int(os.environ.get('PORT', 3000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
