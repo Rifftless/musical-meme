@@ -38,10 +38,9 @@
             overflow: hidden;
         }
 
-        /* Premium Header */
         header {
-            padding: 1.25rem 2.5rem;
-            background: rgba(15, 23, 42, 0.7);
+            padding: 1rem 2rem;
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
@@ -51,200 +50,90 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 600;
-            font-size: 1.4rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
+            display: flex; align-items: center; gap: 0.75rem;
+            font-weight: 600; font-size: 1.2rem;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 99px;
-            font-size: 0.85rem;
-            font-family: 'JetBrains+Mono', monospace;
-        }
-
-        .indicator {
-            width: 8px;
-            height: 8px;
-            background: var(--danger);
-            border-radius: 50%;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .indicator.online {
-            background: var(--success);
-            box-shadow: 0 0 12px var(--success);
-        }
-
-        /* Main Viewport Container */
         main {
-            flex: 1;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            flex: 1; display: flex; overflow: hidden;
         }
 
-        #viewport-wrapper {
-            position: relative;
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-            background: #000;
-            transition: transform 0.3s ease;
+        #viewport-container {
+            flex: 1; position: relative;
+            display: flex; justify-content: center; align-items: center;
+            padding: 1rem; background: radial-gradient(circle at center, #1e293b, #020617);
         }
 
-        canvas {
-            display: block;
-            max-width: 100%;
-            max-height: 80vh;
-            cursor: crosshair;
+        #screen-canvas {
+            max-width: 100%; max-height: 100%;
+            border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            cursor: crosshair; background: #000;
         }
 
-        /* Feedback UI */
+        /* Power Tools Sidebar */
+        #sidebar {
+            width: 320px; background: var(--surface);
+            border-left: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; padding: 1.5rem;
+            gap: 1.5rem; overflow-y: auto;
+        }
+
+        h2 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+
+        .btn {
+            padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03); color: var(--text-main);
+            cursor: pointer; text-align: center; font-size: 0.85rem; transition: 0.2s;
+        }
+        .btn:hover { background: rgba(56, 189, 248, 0.1); border-color: var(--accent); }
+        .btn.active { background: var(--danger); border-color: var(--danger); }
+
+        /* Process Manager */
+        #proc-list {
+            flex: 1; display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .proc-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem; background: rgba(255,255,255,0.02);
+            border-radius: 6px; font-size: 0.75rem;
+        }
+        .proc-item:hover { background: rgba(255,255,255,0.05); }
+        .kill-btn { color: var(--danger); cursor: pointer; font-weight: bold; padding: 0.2rem 0.5rem; }
+
         .overlay-info {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.75rem 1.5rem;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            pointer-events: none;
-            display: flex;
-            gap: 1.5rem;
-            opacity: 0.8;
-        }
-
-        .shortcut {
-            color: var(--accent);
-            font-weight: 600;
-            margin-right: 0.4rem;
-        }
-
-        /* Loading State */
-        #loader {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            color: var(--text-dim);
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(56, 189, 248, 0.1);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Glass Cards for metadata */
-        .side-stats {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 12px;
-            min-width: 160px;
-        }
-
-        .card-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-dim);
-            margin-bottom: 0.25rem;
-        }
-
-        .card-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-main);
+            position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+            padding: 0.5rem 1rem; background: rgba(0,0,0,0.6); border-radius: 20px;
+            font-size: 0.7rem; color: #94a3b8; pointer-events: none;
         }
     </style>
 </head>
-
 <body>
     <header>
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 2v20"></path>
-                <path d="M2 12h20"></path>
-            </svg>
-            ANTIGRAVITY
-        </div>
-        <div class="status-badge">
-            <div id="indicator" class="indicator"></div>
-            <span id="status-text">WAITING FOR HOST</span>
+        <div class="logo">ANTIGRAVITY REMOTE</div>
+        <div id="status-badge" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
+            <div id="indicator" style="width: 8px; height: 8px; border-radius: 50%; background: var(--danger);"></div>
+            <span id="status-text">OFFLINE</span>
         </div>
     </header>
 
     <main>
-        <div id="loader">
-            <div class="spinner"></div>
-            <p>Awaiting screen broadcast...</p>
-        </div>
-
-        <div id="viewport-wrapper" style="display: none;">
+        <div id="viewport-container">
             <canvas id="screen-canvas"></canvas>
+            <div class="overlay-info">DRAG to move items • RIGHT CLICK for menu • SCROLL to zoom/scroll</div>
         </div>
 
-        <div class="side-stats">
-            <div class="card">
-                <div class="card-label">Latency</div>
-                <div id="latency" class="card-value">-- ms</div>
-            </div>
-            <div class="card">
-                <div class="card-label">Resolution</div>
-                <div id="resolution" class="card-value">0x0</div>
-            </div>
-        </div>
+        <div id="sidebar">
+            <h2>System Power</h2>
+            <button id="lock-btn" class="btn">Lock Host Input</button>
+            <button id="p-refresh" class="btn">Refresh Processes</button>
 
-        <div class="overlay-info">
-            <span><span class="shortcut">Move</span> Mouse Hover</span>
-            <span><span class="shortcut">L-Click</span> Select</span>
-            <span><span class="shortcut">R-Click</span> Menu</span>
+            <h2>Process Manager</h2>
+            <div id="proc-list">
+                <div style="color: var(--text-dim); font-size: 0.8rem; text-align: center;">Click refresh to list</div>
+            </div>
         </div>
     </main>
 
@@ -252,94 +141,114 @@
         const socket = io();
         const canvas = document.getElementById('screen-canvas');
         const ctx = canvas.getContext('2d');
-        const wrapper = document.getElementById('viewport-wrapper');
-        const loader = document.getElementById('loader');
-        const indicator = document.getElementById('indicator');
-        const statusText = document.getElementById('status-text');
-        const latencyVal = document.getElementById('latency');
-        const resVal = document.getElementById('resolution');
+        const lockBtn = document.getElementById('lock-btn');
+        const procList = document.getElementById('proc-list');
+        const pRefresh = document.getElementById('p-refresh');
 
-        let lastFrameTime = Date.now();
+        let isLocked = false;
+        let isMouseDown = false;
 
         socket.on('connect', () => {
-            console.log('Connected to relay server');
             socket.emit('identify', 'client');
-        });
-
-        socket.on('host_status', (isOnline) => {
-            if (isOnline) {
-                indicator.classList.add('online');
-                statusText.innerText = 'HOST ONLINE';
-            } else {
-                indicator.classList.remove('online');
-                statusText.innerText = 'HOST OFFLINE';
-                wrapper.style.display = 'none';
-                loader.style.display = 'flex';
-            }
+            document.getElementById('indicator').style.background = 'var(--success)';
+            document.getElementById('status-text').innerText = 'CONNECTED';
         });
 
         socket.on('screen_frame', (data) => {
-            if (loader.style.display !== 'none') {
-                loader.style.display = 'none';
-                wrapper.style.display = 'block';
-            }
-
             const img = new Image();
             img.onload = () => {
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0);
-                resVal.innerText = `${img.width}x${img.height}`;
-
-                const now = Date.now();
-                latencyVal.innerText = `${now - lastFrameTime}ms`;
-                lastFrameTime = now;
             };
             img.src = 'data:image/jpeg;base64,' + data;
         });
 
-        function getMousePos(evt) {
+        function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            return {
-                x: (evt.clientX - rect.left) / rect.width,
-                y: (evt.clientY - rect.top) / rect.height
-            };
+            return { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
         }
 
-        // Mouse events
+        // Advanced Mouse Events (Drag support)
+        canvas.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            const pos = getPos(e);
+            socket.emit('control_event', { type: 'mousedown', ...pos, button: e.button === 0 ? 'left' : 'right' });
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            const pos = getPos(e);
+            socket.emit('control_event', { type: 'mouseup', ...pos, button: e.button === 0 ? 'left' : 'right' });
+        });
+
         canvas.addEventListener('mousemove', (e) => {
-            const pos = getMousePos(e);
+            const pos = getPos(e);
             socket.emit('control_event', { type: 'move', ...pos });
         });
 
-        canvas.addEventListener('mousedown', (e) => {
-            const pos = getMousePos(e);
-            const button = e.button === 0 ? 'left' : 'right';
-            socket.emit('control_event', { type: 'click', button, ...pos });
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            socket.emit('control_event', { type: 'scroll', delta: e.deltaY * -1 });
+        }, { passive: false });
+
+        canvas.addEventListener('dblclick', (e) => {
+            const pos = getPos(e);
+            socket.emit('control_event', { type: 'click', ...pos, clicks: 2 });
         });
 
-        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Keyboard events
+        // Keyboard
         window.addEventListener('keydown', (e) => {
-            // Prevent default behavior for function keys and system shortcuts that might interfere
-            if (e.key.length > 1 || (e.ctrlKey || e.altKey || e.metaKey)) {
-                // Keep some shortcuts for the browser if needed, but usually we want to capture everything
-                // e.preventDefault(); 
-            }
-
-            // Only send if not typing in some input (though we don't have any yet)
-            if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                socket.emit('control_event', {
-                    type: 'key',
-                    key: e.key,
-                    shift: e.shiftKey,
-                    ctrl: e.ctrlKey,
-                    alt: e.altKey,
-                    meta: e.metaKey
-                });
-            }
+            if (document.activeElement.tagName === 'INPUT') return;
+            socket.emit('control_event', { 
+                type: 'key', key: e.key, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey 
+            });
+            if (e.key.length > 1) e.preventDefault();
         });
+
+        // Power Tools
+        lockBtn.onclick = () => {
+            isLocked = !isLocked;
+            lockBtn.classList.toggle('active', isLocked);
+            lockBtn.innerText = isLocked ? 'Unlock Host Input' : 'Lock Host Input';
+            socket.emit('control_event', { type: 'lock_host', locked: isLocked });
+        };
+
+        pRefresh.onclick = () => {
+            procList.innerHTML = '<div style="text-align:center">Refreshing...</div>';
+            socket.emit('control_event', { type: 'get_procs' });
+        };
+
+        socket.on('process_list', (procs) => {
+            procList.innerHTML = '';
+            procs.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'proc-item';
+                div.innerHTML = `
+                    <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">
+                        <b>[${p.pid}]</b> ${p.name}
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span style="color:var(--accent)">${p.cpu}%</span>
+                        <span class="kill-btn" data-pid="${p.pid}">✕</span>
+                    </div>
+                `;
+                procList.appendChild(div);
+            });
+        });
+
+        procList.onclick = (e) => {
+            if (e.target.classList.contains('kill-btn')) {
+                const pid = parseInt(e.target.dataset.pid);
+                if (confirm(`Kill process ${pid}?`)) {
+                    socket.emit('control_event', { type: 'kill_proc', pid });
+                    setTimeout(() => pRefresh.click(), 500);
+                }
+            }
+        };
     </script>
 </body>
 

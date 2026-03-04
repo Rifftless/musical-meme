@@ -3,17 +3,10 @@ from flask_socketio import SocketIO, emit
 import os
 
 # Let's keep it simple: all files in the root folder
-# Check for eventlet (recommended for production)
-try:
-    import eventlet
-    async_mode = 'eventlet'
-except ImportError:
-    async_mode = 'threading'
-
 app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 app.config['SECRET_KEY'] = 'secret!'
-# Production setup: use eventlet if available, otherwise fallback to threading
-socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=20000000, async_mode=async_mode)
+# Production setup: use eventlet for WebSocket support
+socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=10000000, async_mode='eventlet')
 
 @app.route('/')
 def index():
@@ -32,8 +25,13 @@ def handle_screen_frame(data):
 
 @socketio.on('control_event')
 def handle_control_event(data):
-    # Relay control events (mouse/key) to the host
+    # Relay control events (mouse/key/process/lock) to the host
     emit('control_event', data, broadcast=True, include_self=False)
+
+@socketio.on('process_list')
+def handle_process_list(data):
+    # Relay process list from host back to requester (client)
+    emit('process_list', data, broadcast=True, include_self=False)
 
 @socketio.on('disconnect')
 def handle_disconnect():
