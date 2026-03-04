@@ -3,10 +3,17 @@ from flask_socketio import SocketIO, emit
 import os
 
 # Let's keep it simple: all files in the root folder
+# Check for eventlet (recommended for production)
+try:
+    import eventlet
+    async_mode = 'eventlet'
+except ImportError:
+    async_mode = 'threading'
+
 app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 app.config['SECRET_KEY'] = 'secret!'
-# Production setup: use eventlet for WebSocket support
-socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=10000000, async_mode='eventlet')
+# Production setup: use eventlet if available, otherwise fallback to threading
+socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=20000000, async_mode=async_mode)
 
 @app.route('/')
 def index():
