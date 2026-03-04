@@ -59,6 +59,7 @@
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -321,10 +322,22 @@
 
         // Keyboard events
         window.addEventListener('keydown', (e) => {
-            // Basic key handling - can be expanded
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'Backspace'].includes(e.key)) {
-                e.preventDefault();
-                socket.emit('control_event', { type: 'key', key: e.key });
+            // Prevent default behavior for function keys and system shortcuts that might interfere
+            if (e.key.length > 1 || (e.ctrlKey || e.altKey || e.metaKey)) {
+                // Keep some shortcuts for the browser if needed, but usually we want to capture everything
+                // e.preventDefault(); 
+            }
+
+            // Only send if not typing in some input (though we don't have any yet)
+            if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                socket.emit('control_event', {
+                    type: 'key',
+                    key: e.key,
+                    shift: e.shiftKey,
+                    ctrl: e.ctrlKey,
+                    alt: e.altKey,
+                    meta: e.metaKey
+                });
             }
         });
     </script>

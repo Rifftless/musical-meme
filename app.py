@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, emit
 import os
 
 # Let's keep it simple: all files in the root folder
-app = Flask(__name__, template_folder='.')
+app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 app.config['SECRET_KEY'] = 'secret!'
 # Production setup: use eventlet for WebSocket support
 socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=10000000, async_mode='eventlet')
