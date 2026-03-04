@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Remote | Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --surface: #0f172a;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Premium Header */
+        header {
+            padding: 1.25rem 2.5rem;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.4rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains+Mono', monospace;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .indicator.online {
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+        }
+
+        /* Main Viewport Container */
+        main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+        }
+
+        #viewport-wrapper {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            background: #000;
+            transition: transform 0.3s ease;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+            cursor: crosshair;
+        }
+
+        /* Feedback UI */
+        .overlay-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            pointer-events: none;
+            display: flex;
+            gap: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .shortcut {
+            color: var(--accent);
+            font-weight: 600;
+            margin-right: 0.4rem;
+        }
+
+        /* Loading State */
+        #loader {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(56, 189, 248, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Glass Cards for metadata */
+        .side-stats {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            min-width: 160px;
+        }
+
+        .card-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .card-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2v20"></path>
+                <path d="M2 12h20"></path>
+            </svg>
+            ANTIGRAVITY
+        </div>
+        <div class="status-badge">
+            <div id="indicator" class="indicator"></div>
+            <span id="status-text">WAITING FOR HOST</span>
+        </div>
+    </header>
+
+    <main>
+        <div id="loader">
+            <div class="spinner"></div>
+            <p>Awaiting screen broadcast...</p>
+        </div>
+
+        <div id="viewport-wrapper" style="display: none;">
+            <canvas id="screen-canvas"></canvas>
+        </div>
+
+        <div class="side-stats">
+            <div class="card">
+                <div class="card-label">Latency</div>
+                <div id="latency" class="card-value">-- ms</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Resolution</div>
+                <div id="resolution" class="card-value">0x0</div>
+            </div>
+        </div>
+
+        <div class="overlay-info">
+            <span><span class="shortcut">Move</span> Mouse Hover</span>
+            <span><span class="shortcut">L-Click</span> Select</span>
+            <span><span class="shortcut">R-Click</span> Menu</span>
+        </div>
+    </main>
+
+    <script>
+        const socket = io();
+        const canvas = document.getElementById('screen-canvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('viewport-wrapper');
+        const loader = document.getElementById('loader');
+        const indicator = document.getElementById('indicator');
+        const statusText = document.getElementById('status-text');
+        const latencyVal = document.getElementById('latency');
+        const resVal = document.getElementById('resolution');
+
+        let lastFrameTime = Date.now();
+
+        socket.on('connect', () => {
+            console.log('Connected to relay server');
+            socket.emit('identify', 'client');
+        });
+
+        socket.on('host_status', (isOnline) => {
+            if (isOnline) {
+                indicator.classList.add('online');
+                statusText.innerText = 'HOST ONLINE';
+            } else {
+                indicator.classList.remove('online');
+                statusText.innerText = 'HOST OFFLINE';
+                wrapper.style.display = 'none';
+                loader.style.display = 'flex';
+            }
+        });
+
+        socket.on('screen_frame', (data) => {
+            if (loader.style.display !== 'none') {
+                loader.style.display = 'none';
+                wrapper.style.display = 'block';
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                resVal.innerText = `${img.width}x${img.height}`;
+
+                const now = Date.now();
+                latencyVal.innerText = `${now - lastFrameTime}ms`;
+                lastFrameTime = now;
+            };
+            img.src = 'data:image/jpeg;base64,' + data;
+        });
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) / rect.width,
+                y: (evt.clientY - rect.top) / rect.height
+            };
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousemove', (e) => {
+            const pos = getMousePos(e);
+            socket.emit('control_event', { type: 'move', ...pos });
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const pos = getMousePos(e);
+            const button = e.button === 0 ? 'left' : 'right';
+            socket.emit('control_event', { type: 'click', button, ...pos });
+        });
+
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Keyboard events
+        window.addEventListener('keydown', (e) => {
+            // Basic key handling - can be expanded
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'Backspace'].includes(e.key)) {
+                e.preventDefault();
+                socket.emit('control_event', { type: 'key', key: e.key });
+            }
+        });
+    </script>
+</body>
+
+</html>

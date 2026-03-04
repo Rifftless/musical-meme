@@ -2,15 +2,15 @@ from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO, emit
 import os
 
-app = Flask(__name__, static_folder='public', static_url_path='')
+# Let's keep it simple: all files in the root folder
+app = Flask(__name__, template_folder='.')
 app.config['SECRET_KEY'] = 'secret!'
-# Set max_http_buffer_size to allow larger image payloads
 # Production setup: use eventlet for WebSocket support
 socketio = SocketIO(app, cors_allowed_origins="*", max_http_buffer_size=10000000, async_mode='eventlet')
 
 @app.route('/')
 def index():
-    return send_from_directory('public', 'index.html')
+    return render_template('index.html')
 
 @socketio.on('identify')
 def handle_identify(role):
